@@ -1,5 +1,6 @@
 #место для твоего кода
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.read_csv('./StudentsPerformance.csv')
 print(df.info())
@@ -18,26 +19,23 @@ print(df.info())
 # bachelor's degree     118
 # master's degree        59
 
-# print(df.describe())
-# abit1 = round(df[df['test preparation course'] == 'completed']['writing score'].mean(), 2)
-# abit2 = round(df[df['test preparation course'] == 'none']['writing score'].mean(), 2)
-# print(abit1, abit2, abit1 - abit2)
+
+df['mean score'] = (df['math score'] + df['reading score'] + df['writing score']) / 3
 
 
-groupWithDegree = df[(df['parental level of education'] == "bachelor's degree") | (df['parental level of education'] == "master's degree")]
-groupWithoutDegree = df[(df['parental level of education'] != "bachelor's degree") & (df['parental level of education'] != "master's degree")]
+def set_parents_edication(val):
+    if val == "bachelor's degree" or val == "master's degree":
+        return 'have ed.'
+    return 'no have ed.'
+    
+df['parents edication'] = df['parental level of education'].apply(set_parents_edication)
 
+# print(df.info())
+d = df.pivot_table(index = 'test preparation course', 
+ 	columns = 'parents edication', 
+ 	values = 'mean score', 
+ 	aggfunc = 'mean')
 
-print(round(groupWithDegree[groupWithDegree['test preparation course'] == 'completed']['writing score'].mean(), 2))
-print(round(groupWithDegree[groupWithDegree['test preparation course'] == 'none']['writing score'].mean(), 2))
+d.plot( kind = 'bar',  grid = True)
+plt.show()
 
-print(round(groupWithoutDegree[groupWithoutDegree['test preparation course'] == 'completed']['writing score'].mean(), 2))
-print(round(groupWithoutDegree[groupWithoutDegree['test preparation course'] == 'none']['writing score'].mean(), 2))
-
-# группа у кого родители с высшем образованием и прошли курс 79.12
-# группа у кого родители с высшем образованием и не прошли курс 71.19
-# разница 8%
-
-# группа у кого родители не с высшем образованием и прошли курс  73.36
-# группа у кого родители не с высшем образованием и не прошли курс  63.11
-# разница ~10%
